@@ -1,10 +1,11 @@
-# Web3 100x Dev Cohort Course Purchase App
+# Blinkify
 
-This is a simple web application that allows users to purchase Web3 100x Dev Cohort courses using Solana blinks.
+The platform is a decentralized advertising network built on the Solana blockchain, leveraging Blink links to create a seamless, transparent, and efficient system for advertisers and content creators. It allows users to design, launch, and track advertisements with the added benefits of blockchain technology, such as transparency, security, and real-time data analytics
 
 ![blink example](/images/100xdev-blink.png)
 
-Dialect example: [click here](https://dial.to/?action=solana-action:https://100xdev-blinks.vercel.app/api/actions/buy_web3_cohort)
+Dialect example: [click here](https://dial.to/?action=solana-action:https://blinkify.fun/api/actions/buy_web3_cohort)
+
 ## Features
 
 - Display available courses
@@ -18,4 +19,5 @@ Dialect example: [click here](https://dial.to/?action=solana-action:https://100x
 - **Solana**: Blockchain platform for handling transactions
 
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
