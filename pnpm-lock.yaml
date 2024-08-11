@@ -25,6 +25,9 @@ dependencies:
   react-dom:
     specifier: ^18
     version: 18.0.0(react@18.0.0)
+  tweetnacl:
+    specifier: ^1.0.3
+    version: 1.0.3
 
 devDependencies:
   '@types/node':
