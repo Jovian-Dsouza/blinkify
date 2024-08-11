@@ -6,16 +6,13 @@ import {
   ActionPostRequest,
 } from "@solana/actions";
 import {
-  clusterApiUrl,
-  ComputeBudgetProgram,
-  Connection,
+  Keypair,
   PublicKey,
-  Transaction,
 } from "@solana/web3.js";
 import { NextResponse } from "next/server";
-import * as anchor from "@coral-xyz/anchor";
 import { createBuyTransaction } from "@/app/utils/txn-helpers";
 import { getTokenByAddress } from "@/app/data/tokens";
+import base58 from "bs58";
 
 const amount = 100
 const tokenSymbol = "USDC"
@@ -71,22 +68,28 @@ export const POST = async (req: Request) => {
          headers: ACTIONS_CORS_HEADERS,
        });
     }
-    const serializedBuyTransaction = await createBuyTransaction(
+    const buyTransaction = await createBuyTransaction(
       account,
       amount,
       wallet_address,
       token
     );
 
-    return new Response(
-      JSON.stringify({
-        transaction: serializedBuyTransaction,
+    const reference = new Keypair().publicKey;
+    const payload: ActionPostResponse = await createPostResponse({
+      fields: {
+        transaction: buyTransaction,
         message: "Purchase Successfull! Powered by blinkify.fun",
-      }),
-      {
-        headers: ACTIONS_CORS_HEADERS,
-      }
-    );
+      },
+      reference,
+      actionIdentity: getActionIdentityFromEnv("ACTION_IDENTITY_SECRET"),
+    });
+
+    //TODO store - transaction details in DB
+
+    return new Response(JSON.stringify(payload), {
+      headers: ACTIONS_CORS_HEADERS,
+    });
 
   } catch (err) {
     console.log(err);
@@ -98,3 +101,14 @@ export const POST = async (req: Request) => {
     });
   }
 };
+
+export function getActionIdentityFromEnv(envKey = "ACTION_IDENTITY_SECRET") {
+  try {
+    if (!process.env[envKey]) throw Error("missing env key");
+    return Keypair.fromSecretKey(
+      base58.decode(process.env[envKey] as string)
+    );
+  } catch (err) {
+    throw new Error(`invalid identity in env variable: '${envKey}'`);
+  }
+}

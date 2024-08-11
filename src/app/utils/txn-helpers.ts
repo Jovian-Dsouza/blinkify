@@ -118,9 +118,5 @@ export async function createBuyTransaction(
   }).compileToV0Message();
 
   const versionedTransaction = new anchor.web3.VersionedTransaction(messageV0);
-
-  const serializedTransaction = Buffer.from(
-    versionedTransaction.serialize()
-  ).toString("base64");
-  return serializedTransaction;
+  return versionedTransaction;
 }
