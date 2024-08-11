@@ -7,9 +7,9 @@ import {
 } from "@solana/actions";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { NextResponse } from "next/server";
-import { createBuyTransaction } from "@/app/utils/txn-helpers";
-import { getTokenByAddress } from "@/app/data/tokens";
-import { getActionIdentityFromEnv } from "@/app/utils/action-helpers";
+import { createBuyTransaction } from "@/utils/txn-helpers";
+import { getTokenByAddress } from "@/data/tokens";
+import { getActionIdentityFromEnv } from "@/utils/action-helpers";
 
 const amount = 0.1;
 const tokenSymbol = "USDC";

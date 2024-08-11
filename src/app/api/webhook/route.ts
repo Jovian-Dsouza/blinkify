@@ -9,7 +9,7 @@ import {
   findSplMemoInstruction,
   getActionIdentityFromEnv,
   verifySignatureInfoForIdentity,
-} from "@/app/utils/action-helpers";
+} from "@/utils/action-helpers";
 
 export interface AccountData {
   account: string;

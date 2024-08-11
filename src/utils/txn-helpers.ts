@@ -1,5 +1,9 @@
 import * as anchor from "@coral-xyz/anchor";
-import { clusterApiUrl, ComputeBudgetProgram, PublicKey } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  ComputeBudgetProgram,
+  PublicKey,
+} from "@solana/web3.js";
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
@@ -14,12 +18,11 @@ const solanaRPC =
     ? process.env.NEXT_PUBLIC_SOLANA_MAINNET_RPC
     : process.env.NEXT_PUBLIC_SOLANA_DEVNET_RPC;
 
-
 export async function createBuyTransaction(
   account: PublicKey,
   amount: number,
   wallet_address: string,
-  token: Token,
+  token: Token
 ) {
   const connection = new anchor.web3.Connection(
     solanaRPC || clusterApiUrl("devnet")
