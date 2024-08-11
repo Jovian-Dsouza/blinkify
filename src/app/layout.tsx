@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClusterProvider, networkType } from "@/providers/cluster-provider"
+import { RecoilProvider } from "@/providers/recoil-privoder";
+import { SolanaProvider } from "@/providers/solana-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <RecoilProvider>
+          <ClusterProvider
+            network={
+              (process.env.NEXT_PUBLIC_NETWORK as networkType) || "mainnet"
+            }
+          >
+            <SolanaProvider>{children}</SolanaProvider>
+          </ClusterProvider>
+        </RecoilProvider>
+      </body>
     </html>
   );
 }
