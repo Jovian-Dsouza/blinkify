@@ -28,6 +28,20 @@ export const GET = async (req: Request) => {
       ).toString(),
       description: `Complete Web Development + Devops + Blockchain Cohort`,
       label: `Buy Now`,
+      links: {
+        actions: [
+          {
+            label: `Buy Now`,
+            href: `/api/actions/buy_web3_cohort?email={email}`,
+            parameters: [
+              {
+                name: "email",
+                label: "Enter your Email address",
+              },
+            ],
+          },
+        ],
+      },
     };
 
     return NextResponse.json(payload, {
@@ -48,8 +62,24 @@ export const OPTIONS = GET;
 
 export const POST = async (req: Request) => {
   try {
-    const body: ActionPostRequest = await req.json();
+    // /api/actions/buy_web3_cohort?email={email}
+    const url = new URL(req.url);
+    const email = url.searchParams.get("email");
+    if (!email) {
+      return new Response("Email query parameter is required", {
+        status: 400,
+        headers: ACTIONS_CORS_HEADERS,
+      });
+    }
+    // Check if the email format is valid
+    if (!isValidEmail(email)) {
+      return new Response("Invalid email format", {
+        status: 400,
+        headers: ACTIONS_CORS_HEADERS,
+      });
+    }
 
+    const body: ActionPostRequest = await req.json();
     let account: PublicKey;
     try {
       account = new PublicKey(body.account);
@@ -84,7 +114,8 @@ export const POST = async (req: Request) => {
     });
 
     //TODO store - transaction details in DB
-
+    // reference, wallet_address, amount, token address, network, product id, email address, destination wallet, fee_wallet, fee_amount, created_at, status
+    console.log("email: ", email);
     return new Response(JSON.stringify(payload), {
       headers: ACTIONS_CORS_HEADERS,
     });
@@ -99,3 +130,7 @@ export const POST = async (req: Request) => {
   }
 };
 
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
