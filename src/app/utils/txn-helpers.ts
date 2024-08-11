@@ -36,8 +36,8 @@ export async function createBuyTransaction(
     const fromPublicKey = account;
     const destPublicKey = new PublicKey(wallet_address);
 
-    const totalAmount = new anchor.BN(amount * 10 ** token.decimals);
-    const platformFee = (totalAmount * 1) / 100; //1% fee
+    const totalAmount = BigInt(amount * 10 ** token.decimals);
+    const platformFee = (totalAmount * BigInt(1)) / BigInt(100); // 1% fee
     const tokenTransferAmount = totalAmount - platformFee;
 
     const fromTokenAccount = await getAssociatedTokenAddress(
