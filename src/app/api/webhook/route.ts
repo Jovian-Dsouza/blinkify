@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
-import { clusterApiUrl, Connection } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  ConfirmedSignatureInfo,
+  Connection,
+  ParsedInstruction,
+} from "@solana/web3.js";
+import {
+  findSplMemoInstruction,
+  getActionIdentityFromEnv,
+  verifySignatureInfoForIdentity,
+} from "@/app/utils/action-helpers";
 
 export interface AccountData {
   account: string;
@@ -40,38 +50,62 @@ const solanaRPC =
 
 export const POST = async (req: Request) => {
   const authHeader = req.headers.get("authorization");
-
-//   if (authHeader === env.HELIUS_WEBHOOK_SECRET) {
+  if (authHeader === process.env.HELIUS_WEBHOOK_SECRET) {
     const connection = new Connection(solanaRPC || clusterApiUrl("devnet"));
     const body = await req.json();
-    console.log(body)
     const data: WebhookResponse = body;
     const signature = data[0].signature;
     const details = await connection.getParsedTransaction(signature, {
       commitment: "confirmed",
       maxSupportedTransactionVersion: 0,
     });
-
-    if (details === null || details.meta === null) {
+    if (
+      details === null ||
+      details.meta === null ||
+      details.slot === null ||
+      details.transaction === null || 
+      details.transaction.signatures === null || 
+      details.transaction.signatures.length === 0 ||
+      details.transaction.message === null ||
+      details.transaction.message.instructions === null
+    ) {
+      console.error("can't parse necessary details");
       return NextResponse.json(
-        { message: "can't fetch log messages for that transaction" },
+        { message: "can't parse necessary details" },
         { status: 400 }
       );
     }
 
-    const logMessages = details.meta.logMessages;
-    const sender = details.transaction.message.accountKeys[1].pubkey.toString();
+    const sigInfo: ConfirmedSignatureInfo = {
+      signature: details.transaction.signatures[0],
+      slot: details.slot,
+      err: details.meta.err,
+      memo: findSplMemoInstruction(
+        details.transaction.message.instructions as ParsedInstruction[]
+      ).parsed,
+      blockTime: details.blockTime,
+      confirmationStatus: "confirmed",
+    };
 
-    if (!logMessages) {
+    const identity = getActionIdentityFromEnv("ACTION_IDENTITY_SECRET");
+    const isVerified = await verifySignatureInfoForIdentity(
+      connection,
+      identity,
+      sigInfo
+    );
+    if (!isVerified) {
+      console.error("Transaction not verified by identity");
       return NextResponse.json(
-        { message: "can't fetch log messages for that transaction" },
+        { message: "Transaction not verified by identity" },
         { status: 400 }
       );
     }
-    // }
+    // TODO: Store required info in DB
+    console.log("transaction signature", sigInfo.signature);
 
     return NextResponse.json({ message: "webhook received" }, { status: 200 });
-//   } else {
-//     return NextResponse.json({ message: "unauthorized" }, { status: 401 });
-//   }
+  } else {
+    console.error("unauthorized");
+    return NextResponse.json({ message: "unauthorized" }, { status: 401 });
+  }
 };
