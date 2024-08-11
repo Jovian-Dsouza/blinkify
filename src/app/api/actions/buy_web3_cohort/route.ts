@@ -51,10 +51,13 @@ export const GET = async (req: Request) => {
     console.log(err);
     let message = "An unknown error occurred";
     if (typeof err == "string") message = err;
-    return new NextResponse(message, {
-      status: 400,
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    return NextResponse.json(
+      { message },
+      {
+        status: 400,
+        headers: ACTIONS_CORS_HEADERS,
+      }
+    );
   }
 };
 
@@ -66,14 +69,17 @@ export const POST = async (req: Request) => {
     const url = new URL(req.url);
     const email = url.searchParams.get("email");
     if (!email) {
-      return new Response("Email query parameter is required", {
-        status: 400,
-        headers: ACTIONS_CORS_HEADERS,
-      });
+      return new Response(
+        JSON.stringify({ message: "Email query parameter is required" }),
+        {
+          status: 400,
+          headers: ACTIONS_CORS_HEADERS,
+        }
+      );
     }
     // Check if the email format is valid
     if (!isValidEmail(email)) {
-      return new Response("Invalid email format", {
+      return new Response(JSON.stringify({ message: "Invalid email format" }), {
         status: 400,
         headers: ACTIONS_CORS_HEADERS,
       });
@@ -84,17 +90,23 @@ export const POST = async (req: Request) => {
     try {
       account = new PublicKey(body.account);
     } catch (err) {
-      return new Response("Invalid account provided", {
-        status: 400,
-        headers: ACTIONS_CORS_HEADERS,
-      });
+      return new Response(
+        JSON.stringify({ message: "Invalid account provided" }),
+        {
+          status: 400,
+          headers: ACTIONS_CORS_HEADERS,
+        }
+      );
     }
     const token = getTokenByAddress(tokenAddress);
     if (!token) {
-      return new Response("Invalid token address", {
-        status: 400,
-        headers: ACTIONS_CORS_HEADERS,
-      });
+      return new Response(
+        JSON.stringify({ message: "Invalid token address" }),
+        {
+          status: 400,
+          headers: ACTIONS_CORS_HEADERS,
+        }
+      );
     }
     const buyTransaction = await createBuyTransaction(
       account,
@@ -123,7 +135,7 @@ export const POST = async (req: Request) => {
     console.log(err);
     let message = "An unknown error occurred";
     if (typeof err == "string") message = err;
-    return new NextResponse(message, {
+    return new Response(JSON.stringify({ message }), {
       status: 400,
       headers: ACTIONS_CORS_HEADERS,
     });
