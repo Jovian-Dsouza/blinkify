@@ -6,10 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",
+    "@prisma/client": "^5.18.0",
     "@solana/actions": "^1.6.1",
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.2",
@@ -17,7 +21,8 @@
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -26,6 +31,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8",
+    "prisma": "^5.18.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
