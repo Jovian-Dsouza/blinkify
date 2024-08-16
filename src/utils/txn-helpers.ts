@@ -32,6 +32,9 @@ export async function createBuyTransaction(
   });
 
   const instructions = [addPriorityFee];
+  const platformPublicKey = new PublicKey(process.env.SHOP!);
+  let transferAmount = 0.0;
+  let feeAmount = 0.0;
 
   // Add SPL Token Transfer Instruction
   if (amount > 0) {
@@ -42,6 +45,8 @@ export async function createBuyTransaction(
     const totalAmount = BigInt(amount * 10 ** token.decimals);
     const platformFee = (totalAmount * BigInt(1)) / BigInt(100); // 1% fee
     const tokenTransferAmount = totalAmount - platformFee;
+    feeAmount = Number(platformFee) / (10 ** token.decimals)
+    transferAmount = Number(tokenTransferAmount) / 10 ** token.decimals;
 
     const fromTokenAccount = await getAssociatedTokenAddress(
       mintPublicKey,
@@ -76,7 +81,6 @@ export async function createBuyTransaction(
     );
 
     // Platform fee transfer to the platform's wallet
-    const platformPublicKey = new PublicKey(process.env.SHOP!);
     const platformTokenAccount = await getAssociatedTokenAddress(
       mintPublicKey,
       platformPublicKey
@@ -121,5 +125,10 @@ export async function createBuyTransaction(
   }).compileToV0Message();
 
   const versionedTransaction = new anchor.web3.VersionedTransaction(messageV0);
-  return versionedTransaction;
+  return {
+    versionedTransaction,
+    feeAmount,
+    transferAmount,
+    feeAddress: platformPublicKey.toString(),
+  };
 }
