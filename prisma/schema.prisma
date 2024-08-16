@@ -29,7 +29,7 @@ model Ad {
   active        Boolean    // Indicates if the ad is active
   amount        Decimal    // Amount associated with the ad
   tokenAddress  String     // Token address for payment
-  network       Network    // Network used for the ad (e.g., Solana)
+  network       String    // Network used for the ad (e.g., Solana)
   analytics     Analytics? // Analytics associated with the ad
   user          User       @relation(fields: [paymentAddress], references: [walletAddress]) // Relation to the user who created the ad
   payments      Payment[]  // Payments associated with the ad
@@ -50,7 +50,7 @@ model Payment {
   email         String     // Email associated with the payment
   amount        Decimal    // Payment amount
   tokenAddress  String     // Token address used in the payment
-  network       Network    // Network used for the payment (e.g., Solana)
+  network       String    // Network used for the payment (e.g., Solana)
   adId          String     // ID of the ad being paid for
   paymentAt     DateTime   @default(now()) // Timestamp of when the payment was made
   feeAddress    String     // Address to which the fee was paid
@@ -73,9 +73,4 @@ enum PaymentStatus {
   SUCCESS      // Payment was successful
   INPROGRESS   // Payment is in progress
   FAILED       // Payment failed
-}
-
-enum Network {
-  SOLANA_DEVNET  // Solana Devnet
-  SOLANA_MAINNET // Solana Mainnet
 }
