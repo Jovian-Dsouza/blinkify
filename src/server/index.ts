@@ -83,7 +83,7 @@ export const appRouter = router({
             mediaUrl: input.mediaUrl,
             amount: 0.1,
             tokenAddress: input.tokenAddress,
-            network: input.network ,
+            network: input.network,
             active: true,
             paymentAddress: walletAddress,
           },
@@ -91,10 +91,10 @@ export const appRouter = router({
         return ad;
       } catch (error) {
         console.error(error);
-         throw new TRPCError({
-           code: "INTERNAL_SERVER_ERROR",
-           message: "Failed to create advertisement",
-         });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create advertisement",
+        });
       }
     }),
 });
