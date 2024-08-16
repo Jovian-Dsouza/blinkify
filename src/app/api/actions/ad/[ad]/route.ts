@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 import { createBuyTransaction } from "@/utils/txn-helpers";
 import { getTokenByAddress } from "@/data/tokens";
 import { getActionIdentityFromEnv } from "@/utils/action-helpers";
-import { prisma } from "@/utils/prisma-helpers";
+import { findOrCreateUser, prisma } from "@/utils/prisma-helpers";
 
 export const GET = async (req: Request) => {
   try {
@@ -27,17 +27,14 @@ export const GET = async (req: Request) => {
     });
 
     if (!ad) {
-      return new Response(
-        JSON.stringify({ message: "Invalid Ad Id" }),
-        {
-          status: 400,
-          headers: ACTIONS_CORS_HEADERS,
-        }
-      );
+      return new Response(JSON.stringify({ message: "Invalid Ad Id" }), {
+        status: 400,
+        headers: ACTIONS_CORS_HEADERS,
+      });
     }
-    
-    const token = getTokenByAddress(ad.tokenAddress)
-    if(!token){
+
+    const token = getTokenByAddress(ad.tokenAddress);
+    if (!token) {
       return new Response(JSON.stringify({ message: "Invalid Token" }), {
         status: 400,
         headers: ACTIONS_CORS_HEADERS,
@@ -145,26 +142,64 @@ export const POST = async (req: Request) => {
         }
       );
     }
-    const buyTransaction = await createBuyTransaction(
-      account,
-      ad.amount.toNumber(),
-      ad.paymentAddress,
-      token
-    );
+    const { versionedTransaction, feeAddress, feeAmount, transferAmount } =
+      await createBuyTransaction(
+        account,
+        ad.amount.toNumber(),
+        ad.paymentAddress,
+        token
+      );
 
     const reference = new Keypair().publicKey;
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
-        transaction: buyTransaction,
+        transaction: versionedTransaction,
         message: "Purchase Successfull! Powered by blinkify.fun",
       },
       reference,
       actionIdentity: getActionIdentityFromEnv("ACTION_IDENTITY_SECRET"),
     });
 
-    //TODO store - transaction details in DB
-    // reference, wallet_address, amount, token address, network, product id, email address, destination wallet, fee_wallet, fee_amount, created_at, status
-    // console.log("email: ", email);
+    const user = await findOrCreateUser(account.toString());
+
+    // Check if payment already exists for this user and ad
+    const existingPayment = await prisma.payment.findFirst({
+      where: {
+        walletAddress: account.toString(),
+        adId: ad.id,
+        status: "SUCCESS"
+      },
+    });
+
+    if (existingPayment) {
+      return new Response(
+        JSON.stringify({
+          message: "Payment already exists for this advertisement.",
+        }),
+        {
+          status: 400,
+          headers: ACTIONS_CORS_HEADERS,
+        }
+      );
+    }
+
+    const payment = await prisma.payment.create({
+      data: {
+        id: reference.toString(),
+        walletAddress: account.toString(),
+        email: email,
+        amount: ad.amount,
+        tokenAddress: ad.tokenAddress,
+        network: ad.network,
+        adId: ad.id,
+        feeAddress,
+        feeAmount,
+        creatorAddress: ad.paymentAddress,
+        txnSignature: null,
+        status: "INPROGRESS",
+      },
+    });
+
     return new Response(JSON.stringify(payload), {
       headers: ACTIONS_CORS_HEADERS,
     });
