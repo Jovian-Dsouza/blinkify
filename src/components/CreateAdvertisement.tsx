@@ -3,13 +3,12 @@ import { useState } from "react";
 import { trpc } from "@/app/_trpc/client";
 import { useCluster } from "@/providers/cluster-provider";
 import { tokens } from "@/data/tokens";
+import { UploadButton } from "@/utils/uploadthing";
 
 export default function CreateAdvertisement() {
   const [title, setTitle] = useState("test2");
   const [content, setContent] = useState("test2");
-  const [mediaUrl, setMediaUrl] = useState(
-    "https://www.blinkify.fun/web3_cohort_banner.png"
-  );
+  const [mediaUrl, setMediaUrl] = useState("");
   const [amount, setAmount] = useState(0.1);
   const [tokenAddress, setTokenAddress] = useState(tokens[0].address);
   const { cluster } = useCluster();
@@ -71,19 +70,17 @@ export default function CreateAdvertisement() {
           ></textarea>
         </div>
         <div className="mb-4">
-          <label
-            className="block text-white text-sm font-bold mb-2"
-            htmlFor="mediaUrl"
-          >
-            Media URL
-          </label>
-          <input
-            id="mediaUrl"
-            type="text"
-            value={mediaUrl}
-            onChange={(e) => setMediaUrl(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
+          <UploadButton
+            endpoint="imageUploader"
+            onClientUploadComplete={(res) => {
+              if (res && res[0] && res[0].url) {
+                setMediaUrl(res[0].url);
+                console.log("Upload Completed");
+              }
+            }}
+            onUploadError={(error: Error) => {
+              console.log(`ERROR! ${error.message}`);
+            }}
           />
         </div>
         <div className="mb-4">
@@ -117,8 +114,10 @@ export default function CreateAdvertisement() {
             required
           >
             {tokens.map((token, index) => (
-              <option key={index} value={token.address}>{token.symbol}</option>
-            ))}  
+              <option key={index} value={token.address}>
+                {token.symbol}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex items-center justify-between">
