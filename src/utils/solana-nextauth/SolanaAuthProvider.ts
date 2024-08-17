@@ -20,7 +20,7 @@ export const SolanaAuthProvider = CredentialsProvider({
         JSON.parse(credentials?.message || "{}")
       );
       const nextAuthUrl = new URL(
-        process.env.NEXTAUTH_URL || "https://www.blinkify.fun/"
+        process.env.NEXT_PUBLIC_URL || "https://www.blinkify.fun"
       );
       if (signinMessage.domain !== nextAuthUrl.host) {
         return null;
