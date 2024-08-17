@@ -10,6 +10,7 @@ import {
   getActionIdentityFromEnv,
   verifySignatureInfoForIdentity,
 } from "@/utils/action-helpers";
+import { prisma } from "@/utils/prisma-helpers";
 
 export interface AccountData {
   account: string;
@@ -89,22 +90,58 @@ export const POST = async (req: Request) => {
       };
 
       const identity = getActionIdentityFromEnv("ACTION_IDENTITY_SECRET");
-      const isVerified = await verifySignatureInfoForIdentity(
+      const reference = await verifySignatureInfoForIdentity(
         connection,
         identity,
         sigInfo
       );
-      if (!isVerified) {
+      if (!reference) {
         console.error("Transaction not verified by identity");
         return NextResponse.json(
           { message: "Transaction not verified by identity" },
           { status: 400 }
         );
       }
-      // TODO: check if reference is already used in confirm transaction in DB
+      // check if reference is already used in confirm transaction in DB
+      const completedPayment = await prisma.payment.findUnique({
+        where: {
+          id: reference,
+          status: "SUCCESS",
+        },
+      });
+      if (completedPayment) {
+        return NextResponse.json(
+          { message: "Payment already done" },
+          { status: 400 }
+        );
+      }
+
+      const payment = await prisma.payment.findUnique({
+        where: {
+          id: reference,
+          status: "INPROGRESS",
+        },
+      });
+
+      if (!payment) {
+        return NextResponse.json(
+          { message: "Payment not found" },
+          { status: 400 }
+        );
+      }
+
       // TODO: Write parser to verify the tranfer amounts
-      // TODO: Store required info in DB
-      console.log("transaction signature", sigInfo.signature);
+
+      // Update the payment record with the transaction signature and status
+      await prisma.payment.update({
+        where: {
+          id: reference,
+        },
+        data: {
+          txnSignature: sigInfo.signature,
+          status: "SUCCESS",
+        },
+      });
 
       return NextResponse.json(
         { message: "webhook received" },

@@ -49,13 +49,13 @@ export async function verifySignatureInfoForIdentity(
   connection: Connection,
   identity: Signer,
   sigInfo: ConfirmedSignatureInfo
-): Promise<boolean> {
+): Promise<string | null> {
   try {
     const validated = validateActionIdentifierMemo(
       identity.publicKey,
       sigInfo.memo
     );
-    if (!validated) return false;
+    if (!validated) return null;
     // Not able to find the reference as soon as webhook is called add delay. 
     // Or check for repeat referece in the DB instead
     // const confirmedSigInfo = await findReference(
@@ -63,11 +63,11 @@ export async function verifySignatureInfoForIdentity(
     //   new PublicKey(validated.reference)
     // );
     // if (confirmedSigInfo.signature === sigInfo.signature) return true;
-    return true; //Check reference in DB if already existing
+    return validated.reference; //Check reference in DB if already existing
   } catch (err) {
     throw err;
   }
-  return false;
+  return null;
 }
 
 export function validateActionIdentifierMemo(
