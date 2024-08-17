@@ -108,7 +108,7 @@ export const POST = async (req: Request) => {
         }
       );
     }
-    const buyTransaction = await createBuyTransaction(
+    const {versionedTransaction: buyTransaction} = await createBuyTransaction(
       account,
       amount,
       wallet_address,
