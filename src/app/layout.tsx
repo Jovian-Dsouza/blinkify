@@ -6,9 +6,9 @@ import { RecoilProvider } from "@/providers/recoil-privoder";
 import { SolanaProvider } from "@/providers/solana-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import WalletAdaptor from "@/utils/solana-nextauth/WalletAdapter";
 import TrpcProvider from "./_trpc/TrpcProvider";
 import { CustomThemeProvider } from "@/providers/theme-provider";
+import LoginModal from "@/components/LoginModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,7 +36,7 @@ export default async function RootLayout({
             <SolanaProvider session={session}>
               <TrpcProvider>
                 <CustomThemeProvider>
-                  {/* <WalletAdaptor message="Sign into blinkify.fun" /> */}
+                  <LoginModal session={session}/>
                   {children}
                 </CustomThemeProvider>
               </TrpcProvider>
