@@ -2,12 +2,15 @@
 import { useContext, useEffect, useState } from "react";
 import { Dialog, DialogTitle } from "@headlessui/react";
 import { WalletModalContext } from "@solana/wallet-adapter-react-ui";
+import { useSession } from "next-auth/react";
 
-export default function LoginModal({ session }: { session: any }) {
+export default function LoginModal() {
   const [isOpen, setIsOpen] = useState(false);
   const { setVisible: showWalletModal } = useContext(WalletModalContext);
+  const { data: session } = useSession();
 
   useEffect(() => {
+    //@ts-ignore
     if (!session || !session.publicKey) {
       setIsOpen(true);
     }

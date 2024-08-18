@@ -36,7 +36,7 @@ export default async function RootLayout({
             <SolanaProvider session={session}>
               <TrpcProvider>
                 <CustomThemeProvider>
-                  <LoginModal session={session}/>
+                  <LoginModal/>
                   {children}
                 </CustomThemeProvider>
               </TrpcProvider>
