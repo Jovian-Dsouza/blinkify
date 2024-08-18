@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import WalletAdaptor from "@/utils/solana-nextauth/WalletAdapter";
 import TrpcProvider from "./_trpc/TrpcProvider";
+import { CustomThemeProvider } from "@/providers/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,8 +35,10 @@ export default async function RootLayout({
           >
             <SolanaProvider session={session}>
               <TrpcProvider>
-                <WalletAdaptor message="Sign into blinkify.fun" />
-                {children}
+                <CustomThemeProvider>
+                  {/* <WalletAdaptor message="Sign into blinkify.fun" /> */}
+                  {children}
+                </CustomThemeProvider>
               </TrpcProvider>
             </SolanaProvider>
           </ClusterProvider>
