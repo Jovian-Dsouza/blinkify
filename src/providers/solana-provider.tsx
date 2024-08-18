@@ -17,7 +17,7 @@ import { useCluster } from "./cluster-provider";
 import { SessionProvider } from "next-auth/react";
 import { Session } from "next-auth";
 
-require("@solana/wallet-adapter-react-ui/styles.css");
+require("@/utils/solana-nextauth/style.css");
 
 export const WalletButton = dynamic(
   async () =>
