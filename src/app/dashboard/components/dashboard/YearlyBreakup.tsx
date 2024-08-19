@@ -3,10 +3,18 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from "@mui/material/styles";
 import { Grid, Stack, Typography, Avatar } from "@mui/material";
 import { IconArrowUpLeft } from "@tabler/icons-react";
+import { useSession } from "next-auth/react"; // Import useSession
 
 import DashboardCard from "@/app/dashboard/components/shared/DashboardCard";
 
 const YearlyBreakup = () => {
+  // Get session
+  const { data: session, status } = useSession();
+
+  // Masked values
+  const maskedValue = "****";
+  const maskedPercentage = "+**%";
+
   // chart color
   const theme = useTheme();
   const primary = theme.palette.primary.main;
@@ -61,23 +69,28 @@ const YearlyBreakup = () => {
   };
   const seriescolumnchart: any = [38, 40, 25];
 
+  // Loading state
+  if (status === "loading") {
+    return <Typography>Loading...</Typography>;
+  }
+
   return (
     <DashboardCard title="Yearly Breakup">
       <Grid container spacing={3}>
         {/* column */}
         <Grid item xs={7} sm={7}>
           <Typography variant="h3" fontWeight="700">
-            $36,358
+            {status === "authenticated" ? "$0" : maskedValue}
           </Typography>
           <Stack direction="row" spacing={1} mt={1} alignItems="center">
             <Avatar sx={{ bgcolor: successlight, width: 27, height: 27 }}>
               <IconArrowUpLeft width={20} color="#39B69A" />
             </Avatar>
             <Typography variant="subtitle2" fontWeight="600">
-              +9%
+              {status === "authenticated" ? "+0%" : maskedPercentage}
             </Typography>
             <Typography variant="subtitle2" color="textSecondary">
-              last year
+              {status === "authenticated" ? "last year" : "last year"}
             </Typography>
           </Stack>
           <Stack spacing={3} mt={5} direction="row">
@@ -91,7 +104,7 @@ const YearlyBreakup = () => {
                 }}
               ></Avatar>
               <Typography variant="subtitle2" color="textSecondary">
-                2022
+                2023
               </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
@@ -104,7 +117,7 @@ const YearlyBreakup = () => {
                 }}
               ></Avatar>
               <Typography variant="subtitle2" color="textSecondary">
-                2023
+                2024
               </Typography>
             </Stack>
           </Stack>
