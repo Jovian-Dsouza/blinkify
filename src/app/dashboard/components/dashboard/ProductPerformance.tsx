@@ -8,149 +8,167 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import DashboardCard from "@/app/dashboard//components/shared/DashboardCard";
+import DashboardCard from "@/app/dashboard/components/shared/DashboardCard";
+import { useSession } from "next-auth/react"; // Import useSession
+import { trpc } from "@/app/_trpc/client";
 
-const products = [
-  {
-    id: "1",
-    name: "Sunil Joshi",
-    post: "Web Designer",
-    pname: "Elite Admin",
-    priority: "Low",
-    pbg: "primary.main",
-    budget: "3.9",
-  },
-  {
-    id: "2",
-    name: "Andrew McDownland",
-    post: "Project Manager",
-    pname: "Real Homes WP Theme",
-    priority: "Medium",
-    pbg: "secondary.main",
-    budget: "24.5",
-  },
-  {
-    id: "3",
-    name: "Christopher Jamil",
-    post: "Project Manager",
-    pname: "MedicalPro WP Theme",
-    priority: "High",
-    pbg: "error.main",
-    budget: "12.8",
-  },
-  {
-    id: "4",
-    name: "Nirav Joshi",
-    post: "Frontend Engineer",
-    pname: "Hosting Press HTML",
-    priority: "Critical",
-    pbg: "success.main",
-    budget: "2.4",
-  },
-];
+// // Updated products data structure to match the new columns
+// const products = [
+//   {
+//     id: "1",
+//     name: "Sunil Joshi",
+//     active: true,
+//     saleCount: "150",
+//     revenue: "3.9",
+//   },
+//   {
+//     id: "2",
+//     name: "Andrew McDownland",
+//     active: false,
+//     saleCount: "200",
+//     revenue: "24.5",
+//   },
+//   {
+//     id: "3",
+//     name: "Christopher Jamil",
+//     active: true,
+//     saleCount: "180",
+//     revenue: "12.8",
+//   },
+//   {
+//     id: "4",
+//     name: "Nirav Joshi",
+//     active: true,
+//     saleCount: "220",
+//     revenue: "2.4",
+//   },
+// ];
 
 const ProductPerformance = () => {
+  // Get session
+  const { status } = useSession();
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = trpc.getProductPerformance.useQuery();
+
+  if (status === "unauthenticated") {
+    return (
+      <DashboardCard title="Product Performance">
+        <Typography variant="h6" color="error">
+          You need to be authenticated to view this data.
+        </Typography>
+      </DashboardCard>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <DashboardCard title="Product Performance">
+        <Typography variant="h6">Loading...</Typography>
+      </DashboardCard>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardCard title="Product Performance">
+        <Typography variant="h6" color="error">
+          Failed to load data.
+        </Typography>
+      </DashboardCard>
+    );
+  }
+
   return (
     <DashboardCard title="Product Performance">
       <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
-        <Table
-          aria-label="simple table"
-          sx={{
-            whiteSpace: "nowrap",
-            mt: 2,
-          }}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Id
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Assigned
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Name
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Priority
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Budget
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.name}>
+        {products.length === 0 ? (
+          <Typography variant="h6" color="textSecondary">
+            No products found.
+          </Typography>
+        ) : (
+          <Table
+            aria-label="simple table"
+            sx={{
+              whiteSpace: "nowrap",
+              mt: 2,
+            }}
+          >
+            <TableHead>
+              <TableRow>
                 <TableCell>
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {product.id}
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Id
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="subtitle2" fontWeight={600}>
-                        {product.name}
-                      </Typography>
-                      <Typography
-                        color="textSecondary"
-                        sx={{
-                          fontSize: "13px",
-                        }}
-                      >
-                        {product.post}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    color="textSecondary"
-                    variant="subtitle2"
-                    fontWeight={400}
-                  >
-                    {product.pname}
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Name
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Chip
-                    sx={{
-                      px: "4px",
-                      backgroundColor: product.pbg,
-                      color: "#fff",
-                    }}
-                    size="small"
-                    label={product.priority}
-                  ></Chip>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Active
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Sales
+                  </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="h6">${product.budget}k</Typography>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Revenue
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {products.map((product, index) => (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <Typography
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {index + 1}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      {product.name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      sx={{
+                        px: "4px",
+                        backgroundColor: product.active
+                          ? "success.main"
+                          : "error.main",
+                        color: "#fff",
+                      }}
+                      size="small"
+                      label={product.active ? "Active" : "Inactive"}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {product.saleCount}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography variant="h6">${product.revenue}</Typography>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </Box>
     </DashboardCard>
   );
