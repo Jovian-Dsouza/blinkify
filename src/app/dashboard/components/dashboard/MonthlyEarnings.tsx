@@ -3,9 +3,17 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from "@mui/material/styles";
 import { Stack, Typography, Avatar, Fab } from "@mui/material";
 import { IconArrowDownRight, IconCurrencyDollar } from "@tabler/icons-react";
+import { useSession } from "next-auth/react"; // Import useSession
 import DashboardCard from "@/app/dashboard/components/shared/DashboardCard";
 
 const MonthlyEarnings = () => {
+  // Get session
+  const { status } = useSession();
+
+  // Masked values
+  const maskedValue = "****";
+  const maskedPercentage = "+**%";
+
   // chart color
   const theme = useTheme();
   const secondary = theme.palette.secondary.main;
@@ -71,17 +79,17 @@ const MonthlyEarnings = () => {
     >
       <>
         <Typography variant="h3" fontWeight="700" mt="-20px">
-          $6,820
+          {status === "authenticated" ? "$0" : maskedValue}
         </Typography>
         <Stack direction="row" spacing={1} my={1} alignItems="center">
           <Avatar sx={{ bgcolor: errorlight, width: 27, height: 27 }}>
             <IconArrowDownRight width={20} color="#FA896B" />
           </Avatar>
           <Typography variant="subtitle2" fontWeight="600">
-            +9%
+            {status === "authenticated" ? "+0%" : maskedPercentage}
           </Typography>
           <Typography variant="subtitle2" color="textSecondary">
-            last year
+            last month
           </Typography>
         </Stack>
       </>
