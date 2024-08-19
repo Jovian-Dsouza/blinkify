@@ -1,7 +1,7 @@
 import { t, publicProcedure, router } from "./trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import {  prisma } from "@/utils/prisma-helpers";
+import { prisma } from "@/utils/prisma-helpers";
 
 const authMiddleware = t.middleware(async ({ ctx, next }) => {
   //@ts-ignore
@@ -94,6 +94,64 @@ export const appRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create advertisement",
+        });
+      }
+    }),
+
+  getProductPerformance: publicProcedure
+    .use(authMiddleware)
+    .query(async ({ ctx }) => {
+      try {
+        const walletAddress = ctx.token.sub;
+
+        // Fetch all ads associated with the user
+        const ads = await prisma.ad.findMany({
+          where: {
+            paymentAddress: walletAddress,
+          },
+        });
+
+        // Aggregate performance data from payments
+        const payments = await prisma.payment.groupBy({
+          by: ["adId"],
+          _sum: {
+            amount: true,
+          },
+          _count: {
+            id: true,
+          },
+          where: {
+            walletAddress: walletAddress,
+          },
+        });
+
+        // Create a map for quick lookup of payment data
+        const paymentMap = payments.reduce((acc, payment) => {
+          acc[payment.adId] = payment;
+          return acc;
+        }, {} as Record<string, (typeof payments)[0]>);
+
+        // Map the ads to include performance metrics, defaulting to zero if no payments
+        const productPerformance = ads.map((ad) => {
+          const payment = paymentMap[ad.id] || {
+            _count: { id: 0 },
+            _sum: { amount: 0 },
+          };
+          return {
+            id: ad.id,
+            name: ad.title ?? "Unknown",
+            active: ad.active ?? false,
+            saleCount: payment._count.id,
+            revenue: payment._sum.amount ?? 0,
+          };
+        });
+
+        return productPerformance;
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve product performance",
         });
       }
     }),
