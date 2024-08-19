@@ -5,9 +5,15 @@ import DashboardCard from "@/app/dashboard/components/shared/DashboardCard";
 import { trpc } from "@/app/_trpc/client";
 import { useEffect } from "react";
 import AdvertisementCard from "@/components/AdvertisementCard";
+import { shareOnX } from "@/utils/share";
 
 const ManageLinks = () => {
   const getAdvertisements = trpc.getAdvertisements.useQuery();
+
+  function handleShare(id: string) {
+    const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
+    shareOnX("Buy now with Blinkify ", url)
+  }
 
   useEffect(() => {
     if (getAdvertisements.status === "success") {
@@ -38,7 +44,7 @@ const ManageLinks = () => {
                 key={ad.id}
                 className="px-4 mb-6"
               >
-                <AdvertisementCard {...ad} />
+                <AdvertisementCard onDelete={() => {}} onShare={() => {handleShare(ad.id)}} {...ad} />
               </div>
             ))}
           </div>
