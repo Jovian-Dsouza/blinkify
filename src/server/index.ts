@@ -21,29 +21,21 @@ const authMiddleware = t.middleware(async ({ ctx, next }) => {
 });
 
 export const appRouter = router({
-  getTodos: publicProcedure.use(authMiddleware).query(async ({ ctx }) => {
-    const walletAddress = ctx.token.sub;
-    // console.log("walletAddress", walletAddress)
-    return [10, 20, 30];
-  }),
-
-  addTodos: publicProcedure
-    .use(authMiddleware)
-    .input(z.string())
-    .mutation(async ({ input }) => {
-      console.log(input);
-      return true;
-    }),
-
   getAdvertisements: publicProcedure
+    .input(
+      z.object({
+        network: z.string(),
+      })
+    )
     .use(authMiddleware)
-    .query(async ({ ctx }) => {
+    .query(async ({ input, ctx }) => {
       try {
         const walletAddress = ctx.token.sub;
 
         const ads = await prisma.ad.findMany({
           where: {
             paymentAddress: walletAddress,
+            network: input.network
           },
           orderBy: {
             createdAt: "desc",
@@ -81,7 +73,7 @@ export const appRouter = router({
             title: input.title,
             content: input.content,
             mediaUrl: input.mediaUrl,
-            amount: 0.1,
+            amount: input.amount,
             tokenAddress: input.tokenAddress,
             network: input.network,
             active: true,
@@ -99,14 +91,20 @@ export const appRouter = router({
     }),
 
   getProductPerformance: publicProcedure
+    .input(
+      z.object({
+        network: z.string(),
+      })
+    )
     .use(authMiddleware)
-    .query(async ({ ctx }) => {
+    .query(async ({ input, ctx }) => {
       try {
         const walletAddress = ctx.token.sub;
 
         // Fetch all ads associated with the user
         const ads = await prisma.ad.findMany({
           where: {
+            network: input.network,
             paymentAddress: walletAddress,
           },
         });
@@ -122,6 +120,7 @@ export const appRouter = router({
           },
           where: {
             walletAddress: walletAddress,
+            network: input.network
           },
         });
 

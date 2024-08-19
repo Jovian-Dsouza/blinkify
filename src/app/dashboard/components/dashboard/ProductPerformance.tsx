@@ -9,49 +9,20 @@ import {
   Chip,
 } from "@mui/material";
 import DashboardCard from "@/app/dashboard/components/shared/DashboardCard";
-import { useSession } from "next-auth/react"; // Import useSession
+import { useSession } from "next-auth/react";
 import { trpc } from "@/app/_trpc/client";
+import { useCluster } from "@/providers/cluster-provider";
 
-// // Updated products data structure to match the new columns
-// const products = [
-//   {
-//     id: "1",
-//     name: "Sunil Joshi",
-//     active: true,
-//     saleCount: "150",
-//     revenue: "3.9",
-//   },
-//   {
-//     id: "2",
-//     name: "Andrew McDownland",
-//     active: false,
-//     saleCount: "200",
-//     revenue: "24.5",
-//   },
-//   {
-//     id: "3",
-//     name: "Christopher Jamil",
-//     active: true,
-//     saleCount: "180",
-//     revenue: "12.8",
-//   },
-//   {
-//     id: "4",
-//     name: "Nirav Joshi",
-//     active: true,
-//     saleCount: "220",
-//     revenue: "2.4",
-//   },
-// ];
 
 const ProductPerformance = () => {
   // Get session
+  const { cluster } = useCluster();
   const { status } = useSession();
   const {
     data: products = [],
     isLoading,
     isError,
-  } = trpc.getProductPerformance.useQuery();
+  } = trpc.getProductPerformance.useQuery({ network: cluster.networkName });
 
   if (status === "unauthenticated") {
     return (

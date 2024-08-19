@@ -6,9 +6,11 @@ import { trpc } from "@/app/_trpc/client";
 import { useEffect } from "react";
 import AdvertisementCard from "@/components/AdvertisementCard";
 import { shareOnX } from "@/utils/share";
+import { useCluster } from "@/providers/cluster-provider";
 
 const ManageLinks = () => {
-  const getAdvertisements = trpc.getAdvertisements.useQuery();
+  const { cluster } = useCluster();
+  const getAdvertisements = trpc.getAdvertisements.useQuery({network: cluster.networkName });
 
   function handleShare(id: string) {
     const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
