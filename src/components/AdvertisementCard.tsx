@@ -13,6 +13,7 @@ interface AdvertisementProps {
   tokenAddress: string;
   onDelete: (id: string) => void;
   onShare: (id: string) => void;
+  onOpen: () => void;
 }
 
 const AdvertisementCard: FC<AdvertisementProps> = ({
@@ -24,6 +25,7 @@ const AdvertisementCard: FC<AdvertisementProps> = ({
   tokenAddress,
   onDelete,
   onShare,
+  onOpen,
 }) => {
   const token = getTokenByAddress(tokenAddress);
   if (!token) {
@@ -64,7 +66,7 @@ const AdvertisementCard: FC<AdvertisementProps> = ({
       </div>
 
       {/* Content Section */}
-      <div className="mt-4">
+      <div className="mt-4" onClick={onOpen}>
         <p className="text-gray-500 text-xs mb-1">blinkify.fun</p>
         <h2 className="text-md font-bold text-gray-900 mb-0.5 truncate">
           Buy {title} for {amount} {token.symbol}

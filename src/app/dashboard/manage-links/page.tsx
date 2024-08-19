@@ -12,7 +12,12 @@ const ManageLinks = () => {
 
   function handleShare(id: string) {
     const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
-    shareOnX("Buy now with Blinkify ", url)
+    shareOnX("Buy now with Blinkify ", url);
+  }
+
+  function handleOpenAd(id: string) {
+    const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
+    window.open(url, "_blank");
   }
 
   useEffect(() => {
@@ -40,11 +45,15 @@ const ManageLinks = () => {
           <div className="flex flex-wrap -mx-4 p-4">
             {/* Render your data here */}
             {getAdvertisements.data?.map((ad) => (
-              <div
-                key={ad.id}
-                className="px-4 mb-6"
-              >
-                <AdvertisementCard onDelete={() => {}} onShare={() => {handleShare(ad.id)}} {...ad} />
+              <div key={ad.id} className="px-4 mb-6">
+                <AdvertisementCard
+                  onOpen={() => handleOpenAd(ad.id)}
+                  onDelete={() => {}}
+                  onShare={() => {
+                    handleShare(ad.id);
+                  }}
+                  {...ad}
+                />
               </div>
             ))}
           </div>
