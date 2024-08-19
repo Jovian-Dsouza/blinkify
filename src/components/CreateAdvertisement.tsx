@@ -23,6 +23,7 @@ export default function CreateAdvertisement() {
 
   const validateForm = () => {
     return (
+      addAdvertisement.status !== "loading" &&
       title.trim() !== "" &&
       content.trim() !== "" &&
       mediaUrl.trim() !== "" &&
@@ -129,11 +130,11 @@ export default function CreateAdvertisement() {
             type="submit"
             className={`relative rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-200
             ${
-              !isFormValid || addAdvertisement.status === "loading"
+              !isFormValid
                 ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-70"
                 : "bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             }`}
-            disabled={!isFormValid || addAdvertisement.status === "loading"}
+            disabled={!isFormValid}
           >
             {addAdvertisement.status === "loading"
               ? "Creating..."
