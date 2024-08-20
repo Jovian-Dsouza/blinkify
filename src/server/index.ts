@@ -35,7 +35,7 @@ export const appRouter = router({
         const ads = await prisma.ad.findMany({
           where: {
             paymentAddress: walletAddress,
-            network: input.network
+            network: input.network,
           },
           orderBy: {
             createdAt: "desc",
@@ -120,7 +120,7 @@ export const appRouter = router({
           },
           where: {
             walletAddress: walletAddress,
-            network: input.network
+            network: input.network,
           },
         });
 
@@ -151,6 +151,157 @@ export const appRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to retrieve product performance",
+        });
+      }
+    }),
+
+  getMonthlyRevenue: publicProcedure
+    .input(
+      z.object({
+        network: z.string(),
+      })
+    )
+    .use(authMiddleware)
+    .query(async ({ input, ctx }) => {
+      try {
+        const walletAddress = ctx.token.sub;
+        const currentDate = new Date();
+        const startOfCurrentMonth = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          1
+        ); // Start of the current month
+        const startOfNextMonth = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          1
+        ); // Start of the next month
+        const startOfLastMonth = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() - 1,
+          1
+        ); // Start of the last month
+
+        // Calculate current month's revenue
+        const currentMonthRevenue = await prisma.payment.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            walletAddress: walletAddress,
+            network: input.network,
+            paymentAt: {
+              gte: startOfCurrentMonth,
+              lt: startOfNextMonth,
+            },
+          },
+        });
+
+        // Calculate previous month's revenue
+        const lastMonthRevenue = await prisma.payment.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            walletAddress: walletAddress,
+            network: input.network,
+            paymentAt: {
+              gte: startOfLastMonth,
+              lt: startOfCurrentMonth,
+            },
+          },
+        });
+
+        // Convert Decimal to number
+        const currentRevenue = Number(currentMonthRevenue._sum.amount) || 0;
+        const previousRevenue = Number(lastMonthRevenue._sum.amount) || 0;
+
+        // Calculate the percentage change
+        let percentageChange = 0;
+        if (previousRevenue > 0) {
+          percentageChange =
+            ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+        }
+
+        return {
+          monthlyRevenue: currentRevenue,
+          percentageChange: percentageChange, // Format percentage to 2 decimal places
+        };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to calculate monthly revenue",
+        });
+      }
+    }),
+
+  // The previous getYearlyRevenue remains unchanged
+  getYearlyRevenue: publicProcedure
+    .input(
+      z.object({
+        network: z.string(),
+      })
+    )
+    .use(authMiddleware)
+    .query(async ({ input, ctx }) => {
+      try {
+        const walletAddress = ctx.token.sub;
+        const currentYear = new Date().getFullYear();
+        const startOfCurrentYear = new Date(currentYear, 0, 1); // Start of the current year
+        const startOfNextYear = new Date(currentYear + 1, 0, 1); // Start of the next year
+        const startOfLastYear = new Date(currentYear - 1, 0, 1); // Start of the last year
+
+        // Calculate current year's revenue
+        const currentYearRevenue = await prisma.payment.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            walletAddress: walletAddress,
+            network: input.network,
+            paymentAt: {
+              gte: startOfCurrentYear,
+              lt: startOfNextYear,
+            },
+          },
+        });
+
+        // Calculate previous year's revenue
+        const previousYearRevenue = await prisma.payment.aggregate({
+          _sum: {
+            amount: true,
+          },
+          where: {
+            walletAddress: walletAddress,
+            network: input.network,
+            paymentAt: {
+              gte: startOfLastYear,
+              lt: startOfCurrentYear,
+            },
+          },
+        });
+
+        // Convert Decimal to number
+        const currentRevenue = Number(currentYearRevenue._sum.amount) || 0;
+        const previousRevenue = Number(previousYearRevenue._sum.amount) || 0;
+
+        // Calculate the percentage change
+        let percentageChange = 0;
+        if (previousRevenue > 0) {
+          percentageChange =
+            ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+        }
+
+        return {
+          yearlyRevenue: currentRevenue,
+          percentageChange: percentageChange, // Format percentage to 2 decimal places
+        };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to calculate yearly revenue",
         });
       }
     }),
