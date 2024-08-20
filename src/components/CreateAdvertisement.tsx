@@ -103,6 +103,9 @@ export default function CreateAdvertisement() {
               onDrop={(acceptedFiles) => {
                 console.log("Accepted files: ", acceptedFiles);
               }}
+              config={{
+                mode: "auto",
+              }}
             />
           </div>
         </FormField>
