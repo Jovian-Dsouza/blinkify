@@ -1,5 +1,5 @@
 "use client";
-import { useState, FormEvent, useMemo } from "react";
+import { useState, FormEvent, useMemo, useEffect } from "react";
 import { trpc } from "@/app/_trpc/client";
 import { useCluster } from "@/providers/cluster-provider";
 import { tokens } from "@/data/tokens";
@@ -9,6 +9,7 @@ import { TextInput } from "./TextInput";
 import { FormField } from "./FormField";
 import { TextareaInput } from "./TextareaInput";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 export default function CreateAdvertisement() {
   const [title, setTitle] = useState<string>("");
@@ -52,9 +53,9 @@ export default function CreateAdvertisement() {
         tokenAddress,
         network: cluster.networkName,
       });
-      alert("Advertisement created successfully!");
+      toast.success("Advertisement created successfully!");
     } catch (error) {
-      alert("Failed to create advertisement. Please try again.");
+      toast.error("Failed to create advertisement. Please try again.");
     }
   };
 
