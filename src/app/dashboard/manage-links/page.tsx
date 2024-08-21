@@ -10,7 +10,10 @@ import { useCluster } from "@/providers/cluster-provider";
 
 const ManageLinks = () => {
   const { cluster } = useCluster();
-  const getAdvertisements = trpc.getAdvertisements.useQuery({network: cluster.networkName });
+  const getAdvertisements = trpc.getAdvertisements.useQuery({
+    network: cluster.networkName,
+  });
+  const makeAdInactive = trpc.makeAdInactive.useMutation();
 
   function handleShare(id: string) {
     const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
@@ -20,6 +23,18 @@ const ManageLinks = () => {
   function handleOpenAd(id: string) {
     const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
     window.open(url, "_blank");
+  }
+
+  async function handleDeactivate(id: string) {
+    try {
+      await makeAdInactive.mutateAsync({
+        adId: id,
+        network: cluster.networkName,
+      });
+      getAdvertisements.refetch();
+    } catch (error) {
+      console.error("Failed to delete advertisement", error);
+    }
   }
 
   useEffect(() => {
@@ -50,7 +65,9 @@ const ManageLinks = () => {
               <div key={ad.id} className="px-4 mb-6">
                 <AdvertisementCard
                   onOpen={() => handleOpenAd(ad.id)}
-                  onDelete={() => {}}
+                  onDelete={() => {
+                    handleDeactivate(ad.id);
+                  }}
                   onShare={() => {
                     handleShare(ad.id);
                   }}
