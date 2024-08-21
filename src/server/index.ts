@@ -36,6 +36,7 @@ export const appRouter = router({
           where: {
             paymentAddress: walletAddress,
             network: input.network,
+            active: true,
           },
           orderBy: {
             createdAt: "desc",
@@ -302,6 +303,54 @@ export const appRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to calculate yearly revenue",
+        });
+      }
+    }),
+
+  makeAdInactive: publicProcedure
+    .use(authMiddleware)
+    .input(
+      z.object({
+        adId: z.string().uuid(),
+        network: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const walletAddress = ctx.token.sub;
+
+        // Check if the ad belongs to the user
+        const ad = await prisma.ad.findFirst({
+          where: {
+            id: input.adId,
+            paymentAddress: walletAddress,
+            network: input.network,
+          },
+        });
+
+        if (!ad) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Advertisement not found or does not belong to the user",
+          });
+        }
+
+        // Update the ad to inactive
+        const updatedAd = await prisma.ad.update({
+          where: {
+            id: input.adId,
+          },
+          data: {
+            active: false,
+          },
+        });
+
+        return updatedAd;
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to make advertisement inactive",
         });
       }
     }),
