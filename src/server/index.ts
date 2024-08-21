@@ -2,6 +2,7 @@ import { t, publicProcedure, router } from "./trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { prisma } from "@/utils/prisma-helpers";
+import { PaymentStatus } from "@prisma/client";
 
 const authMiddleware = t.middleware(async ({ ctx, next }) => {
   //@ts-ignore
@@ -122,9 +123,9 @@ export const appRouter = router({
             id: true,
           },
           where: {
-            walletAddress: walletAddress,
+            creatorAddress: walletAddress,
             network: input.network,
-            status: "SUCCESS",
+            status: PaymentStatus.SUCCESS,
           },
         });
 
@@ -192,13 +193,13 @@ export const appRouter = router({
             amount: true,
           },
           where: {
-            walletAddress: walletAddress,
+            creatorAddress: walletAddress,
             network: input.network,
             paymentAt: {
               gte: startOfCurrentMonth,
               lt: startOfNextMonth,
             },
-            status: "SUCCESS",
+            status: PaymentStatus.SUCCESS,
           },
         });
 
@@ -208,13 +209,13 @@ export const appRouter = router({
             amount: true,
           },
           where: {
-            walletAddress: walletAddress,
+            creatorAddress: walletAddress,
             network: input.network,
             paymentAt: {
               gte: startOfLastMonth,
               lt: startOfCurrentMonth,
             },
-            status: "SUCCESS",
+            status: PaymentStatus.SUCCESS,
           },
         });
 
@@ -264,13 +265,13 @@ export const appRouter = router({
             amount: true,
           },
           where: {
-            walletAddress: walletAddress,
+            creatorAddress: walletAddress,
             network: input.network,
             paymentAt: {
               gte: startOfCurrentYear,
               lt: startOfNextYear,
             },
-            status: "SUCCESS",
+            status: PaymentStatus.SUCCESS,
           },
         });
 
@@ -280,13 +281,13 @@ export const appRouter = router({
             amount: true,
           },
           where: {
-            walletAddress: walletAddress,
+            creatorAddress: walletAddress,
             network: input.network,
             paymentAt: {
               gte: startOfLastYear,
               lt: startOfCurrentYear,
             },
-            status: "SUCCESS",
+            status: PaymentStatus.SUCCESS,
           },
         });
 
