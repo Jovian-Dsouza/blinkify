@@ -50,14 +50,14 @@ const ManageLinks = () => {
     }
   }
 
-  useEffect(() => {
-    if (getAdvertisements.status === "success") {
-      console.log(getAdvertisements.data);
-    } else if (getAdvertisements.status === "error") {
-      console.error(getAdvertisements.error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getAdvertisements.status, getAdvertisements.data]);
+  // useEffect(() => {
+  //   if (getAdvertisements.status === "success") {
+  //     console.log(getAdvertisements.data);
+  //   } else if (getAdvertisements.status === "error") {
+  //     console.error(getAdvertisements.error);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [getAdvertisements.status, getAdvertisements.data]);
 
   return (
     <PageContainer
