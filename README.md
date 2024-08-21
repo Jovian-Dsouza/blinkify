@@ -2,14 +2,14 @@
 
 The platform is a decentralized advertising network built on the Solana blockchain, leveraging Blink links to create a seamless, transparent, and efficient system for advertisers and content creators. It allows users to design, launch, and track advertisements with the added benefits of blockchain technology, such as transparency, security, and real-time data analytics
 
-![blink example](/images/100xdev-blink.png)
+![blink example](/images/blinkify_home.png)
 
-Dialect example: [click here](https://dial.to/?action=solana-action:https://blinkify.fun/api/actions/buy_web3_cohort)
+Website: [click here](https://www.blinkify.fun/)
 
 ## Features
 
-- Display available courses
-- Purchase courses using Solana blinks
+- Display available products
+- Purchase products using Solana blinks
 - Responsive design
 
 ## Tech Stack
