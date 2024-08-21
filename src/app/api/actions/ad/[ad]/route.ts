@@ -46,6 +46,7 @@ export const GET = async (req: Request) => {
       icon: ad.mediaUrl,
       description: ad.content,
       label: `Buy Now`,
+      disabled: !ad.active || ad.deletedAt !== null,
       links: {
         actions: [
           {
