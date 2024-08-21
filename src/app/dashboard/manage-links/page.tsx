@@ -14,6 +14,7 @@ const ManageLinks = () => {
     network: cluster.networkName,
   });
   const makeAdInactive = trpc.makeAdInactive.useMutation();
+  const deleteAd = trpc.deleteAd.useMutation();
 
   function handleShare(id: string) {
     const url = `${process.env.NEXT_PUBLIC_URL}/ad/${id}`;
@@ -28,6 +29,18 @@ const ManageLinks = () => {
   async function handleDeactivate(id: string) {
     try {
       await makeAdInactive.mutateAsync({
+        adId: id,
+        network: cluster.networkName,
+      });
+      getAdvertisements.refetch();
+    } catch (error) {
+      console.error("Failed to delete advertisement", error);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteAd.mutateAsync({
         adId: id,
         network: cluster.networkName,
       });
@@ -66,7 +79,7 @@ const ManageLinks = () => {
                 <AdvertisementCard
                   onOpen={() => handleOpenAd(ad.id)}
                   onDelete={() => {
-                    handleDeactivate(ad.id);
+                    handleDelete(ad.id);
                   }}
                   onShare={() => {
                     handleShare(ad.id);
