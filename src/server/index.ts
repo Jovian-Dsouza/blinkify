@@ -124,6 +124,7 @@ export const appRouter = router({
           where: {
             walletAddress: walletAddress,
             network: input.network,
+            status: "SUCCESS",
           },
         });
 
@@ -197,6 +198,7 @@ export const appRouter = router({
               gte: startOfCurrentMonth,
               lt: startOfNextMonth,
             },
+            status: "SUCCESS",
           },
         });
 
@@ -212,6 +214,7 @@ export const appRouter = router({
               gte: startOfLastMonth,
               lt: startOfCurrentMonth,
             },
+            status: "SUCCESS",
           },
         });
 
@@ -267,6 +270,7 @@ export const appRouter = router({
               gte: startOfCurrentYear,
               lt: startOfNextYear,
             },
+            status: "SUCCESS",
           },
         });
 
@@ -282,6 +286,7 @@ export const appRouter = router({
               gte: startOfLastYear,
               lt: startOfCurrentYear,
             },
+            status: "SUCCESS",
           },
         });
 
