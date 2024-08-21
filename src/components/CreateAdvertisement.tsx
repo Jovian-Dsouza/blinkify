@@ -15,7 +15,7 @@ export default function CreateAdvertisement() {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [mediaUrl, setMediaUrl] = useState<string>("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>();
   const [tokenAddress, setTokenAddress] = useState<string>(tokens[0].address);
   const { cluster } = useCluster();
   const { data: session } = useSession();
@@ -28,6 +28,7 @@ export default function CreateAdvertisement() {
       title.trim() !== "" &&
       content.trim() !== "" &&
       mediaUrl.trim() !== "" &&
+      amount &&
       amount > 0 &&
       tokenAddress.trim() !== "" &&
       session &&
@@ -49,7 +50,7 @@ export default function CreateAdvertisement() {
         title,
         content,
         mediaUrl,
-        amount,
+        amount: amount!,
         tokenAddress,
         network: cluster.networkName,
       });
@@ -116,8 +117,14 @@ export default function CreateAdvertisement() {
             <TextInput
               id="amount"
               type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              value={amount!}
+              onChange={(e) =>
+                setAmount(
+                  e.target.value.trim() !== ""
+                    ? Number(e.target.value)
+                    : undefined
+                )
+              }
               placeholder="Enter the amount"
             />
             <div className="w-1/2">
