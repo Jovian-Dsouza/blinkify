@@ -37,6 +37,7 @@ export const appRouter = router({
             paymentAddress: walletAddress,
             network: input.network,
             active: true,
+            deletedAt: null,
           },
           orderBy: {
             createdAt: "desc",
@@ -107,6 +108,7 @@ export const appRouter = router({
           where: {
             network: input.network,
             paymentAddress: walletAddress,
+            deletedAt: null,
           },
         });
 
@@ -351,6 +353,56 @@ export const appRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to make advertisement inactive",
+        });
+      }
+    }),
+
+  deleteAd: publicProcedure
+    .use(authMiddleware)
+    .input(
+      z.object({
+        adId: z.string().uuid(),
+        network: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const walletAddress = ctx.token.sub;
+
+        // Check if the ad belongs to the user
+        const ad = await prisma.ad.findFirst({
+          where: {
+            id: input.adId,
+            paymentAddress: walletAddress,
+            network: input.network,
+            deletedAt: null,
+          },
+        });
+
+        if (!ad) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Advertisement not found or does not belong to the user",
+          });
+        }
+
+        // Soft delete the ad
+        const updatedAd = await prisma.ad.update({
+          where: {
+            id: input.adId,
+          },
+          data: {
+            deletedAt: new Date(),
+            active: false, // Optionally, set the ad as inactive
+          },
+        });
+
+        return { success: true, message: "Advertisement deleted successfully" };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete advertisement",
         });
       }
     }),
