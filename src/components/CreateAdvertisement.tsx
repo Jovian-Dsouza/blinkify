@@ -134,6 +134,7 @@ export default function CreateAdvertisement() {
               />
             </div>
           </div>
+          <p className="mt-1 text-xs text-gray-600">1% platform fee will apply.</p>
         </FormField>
 
         <div className="flex justify-end">
