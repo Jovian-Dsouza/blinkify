@@ -33,6 +33,7 @@ model Ad {
   analytics     Analytics? // Analytics associated with the ad
   user          User       @relation(fields: [paymentAddress], references: [walletAddress]) // Relation to the user who created the ad
   payments      Payment[]  // Payments associated with the ad
+  deletedAt     DateTime?  // Timestamp for when the ad was soft deleted (null if not deleted)
 }
 
 model Analytics {
